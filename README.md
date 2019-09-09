@@ -1,5 +1,5 @@
 # The Stock Trader
 
-** Work in Progress
+** Work in Progress **
 
 
