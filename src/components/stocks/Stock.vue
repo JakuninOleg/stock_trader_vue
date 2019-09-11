@@ -1,7 +1,7 @@
 <template>
   <div class="stocks__card">
-    <div class="stocks__card-header">
-      <h3 class="heading-3">{{stock.name}} (Price: {{stock.price}}$)</h3>
+    <div class="stocks__card-header stocks__card-header--buy">
+      <h3 class="heading-3">{{stock.name}} (Price: ${{stock.price}})</h3>
     </div>
     <div class="stocks__card-body">
       <input
@@ -15,8 +15,8 @@
       <button
         class="btn btn--success"
         @click="buyStock"
-        :disabled="quantity <= 0 || !Number.isInteger(Number(quantity))"
-      >Buy</button>
+        :disabled="insufficientFunds || quantity <= 0 || !Number.isInteger(Number(quantity))"
+      >{{ insufficientFunds ? 'No money' : 'Buy' }}</button>
     </div>
   </div>
 </template>
@@ -29,6 +29,14 @@ export default {
       quantity: 0
     };
   },
+  computed: {
+    funds() {
+      return this.$store.getters.funds;
+    },
+    insufficientFunds() {
+      return this.quantity * this.stock.price > this.funds;
+    }
+  },
   methods: {
     buyStock() {
       const order = {
@@ -36,7 +44,7 @@ export default {
         stockPrice: this.stock.price,
         quantity: this.quantity
       };
-      console.log(order);
+      this.$store.dispatch("buyStock", order);
       this.quantity = 0;
     },
     clearInput() {
@@ -52,8 +60,8 @@ export default {
 <style lang="scss">
 .stocks {
   &__card {
-    display: grid;
-    grid-template-rows: 50px 100px;
+    // display: grid;
+    // grid-template-rows: 50px 100px;
     border: 1px solid #e2e8f0;
     border-radius: 5px;
     overflow: hidden;
@@ -62,19 +70,27 @@ export default {
 
   &__card-header {
     grid-row: 1;
-    background: #c6f6d5;
+
     padding: 1rem 2rem;
     display: grid;
     align-items: center;
+
+    &--sell {
+      background: #bee3f8;
+    }
+
+    &--buy {
+      background: #c6f6d5;
+    }
   }
 
   &__card-body {
     grid-row: 2;
     display: grid;
     align-items: center;
-    grid-template-columns: 3fr 1fr;
-    grid-gap: 10rem;
-    padding: 1rem 2rem;
+    grid-template-columns: minmax(250px, 2fr) 1fr;
+    grid-gap: 1rem;
+    padding: 3rem 2rem;
   }
 }
 
@@ -82,10 +98,12 @@ export default {
   border: 1px solid #dff1ff;
   font-size: 1.6rem;
   padding: 1rem;
+  width: 100%;
+  // outline: none;
 }
 
 .btn {
-  padding: 1rem 2rem;
+  padding: 1.2rem 2rem;
   color: #f7fafc;
   border: 0.5px solid #cbd5e0;
   border-radius: 5px;
@@ -94,6 +112,7 @@ export default {
   cursor: pointer;
   outline: none;
   transition: all 0.2s;
+  justify-self: end;
   // box-shadow: 0 .3rem 2rem rgba(black, 0.2);
 
   &:active {

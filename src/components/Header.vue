@@ -19,21 +19,33 @@
             activeClass="nav__list-link--active"
           >Portfolio</router-link>
         </li>
+        <li class="nav__list-item">
+          <router-link
+            to="/stocks"
+            tag="a"
+            class="nav__list-link"
+            activeClass="nav__list-link--active"
+          >Stocks</router-link>
+        </li>
         <li class="nav__list-item nav__list-item--right">
-          <a class="nav__list-link nav__list-link--right">End Day</a>
+          <a class="nav__list-link nav__list-link--right" @click="endDay">End Day</a>
         </li>
         <li class="nav__list-item">
           <a class="nav__list-link nav__list-link--arrow">
             Save & Load
-
-              <ul class="tooltip" key="tooltip">
-                <li class="tooltip__item">Save</li>
-                <li class="tooltip__item">Load</li>
-              </ul>
-
+            <ul class="tooltip" key="tooltip">
+              <li class="tooltip__item" @click="saveData">Save</li>
+              <li class="tooltip__item" @click="loadData">Load</li>
+            </ul>
             <span class="arrow-link">
               <i class="arrow"></i>
             </span>
+          </a>
+        </li>
+        <li class="nav__list-item nav__list-item--right">
+          <a class="nav__list-link nav__list-link--right">
+            Funds:
+            <span class="funds">${{funds}}</span>
           </a>
         </li>
       </ul>
@@ -41,9 +53,44 @@
   </header>
 </template>
 
+
 <script>
-export default {};
+import { mapActions } from "vuex";
+import axios from "axios";
+
+export default {
+  computed: {
+    funds() {
+      let funds = this.$store.getters.funds;
+      return funds.toLocaleString();
+    }
+  },
+  methods: {
+    ...mapActions({
+      randomizeStocks: "randomizeStocks",
+      fetchData: "loadData"
+    }),
+    endDay() {
+      this.randomizeStocks();
+    },
+    saveData() {
+      const data = {
+        funds: this.$store.getters.funds,
+        stockPortfolio: this.$store.getters.stockPortfolio,
+        stocks: this.$store.getters.stocks
+      };
+      axios
+        .post("https://stocktrader-vue-56756.firebaseio.com/data.json", data)
+        .then(res => console.log(res.data))
+        .catch(err => console.log(err));
+    },
+    loadData() {
+      this.fetchData();
+    }
+  }
+};
 </script>
+
 
 <style lang="scss">
 .header {
@@ -81,7 +128,7 @@ export default {};
   &__list {
     list-style: none;
     display: grid;
-    grid-template-columns: repeat(2, max-content) 1fr max-content;
+    grid-template-columns: repeat(3, max-content) 1fr repeat(2, max-content);
 
     &-item--right {
       justify-self: end;
@@ -120,7 +167,7 @@ export default {};
   transform: translateX(-8px);
   overflow: hidden;
   margin: 0 auto;
-  transition: all .3s ease;
+  transition: all 0.3s ease;
 
   &__item {
     padding: 2.2rem 0;
