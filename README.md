@@ -5,4 +5,4 @@
 - Load and Save data from Firebase
 - End day to get new stock prices
 
-
+https://stocktrader-vue-56756.firebaseapp.com/
