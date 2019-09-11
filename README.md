@@ -1,5 +1,8 @@
 # The Stock Trader
 
-** Work in Progress **
+- This is an app built with Vue
+- You can sell and buy stocks
+- Load and Save data from Firebase
+- End day to get new stock prices
 
 
